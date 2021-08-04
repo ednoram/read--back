@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "alwaysStrict": true,
+    "noUnusedParameters": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@utils": ["src/utils"],
+      "@types": ["src/types"],
+      "@config": ["src/config"],
+      "@schema": ["src/schema"],
+      "@models": ["src/models"],
+      "@schema/*": ["src/schema/*"],
+      "@middleware": ["src/middleware"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
+}
