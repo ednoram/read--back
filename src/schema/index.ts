@@ -1,13 +1,21 @@
 import { GraphQLSchema, GraphQLObjectType } from "graphql";
 
 import {
+  user,
+  users,
+  register,
+  login,
+  logout,
+  changeUserName,
+  changeUserPassword,
+} from "./user";
+import {
   article,
   articles,
   postArticle,
   deleteArticle,
   updateArticle,
 } from "./article";
-import { user, users, register, login, logout } from "./user";
 
 const RootQuery = new GraphQLObjectType({
   name: "RootQuery",
@@ -28,6 +36,8 @@ const RootMutation = new GraphQLObjectType({
     postArticle,
     updateArticle,
     deleteArticle,
+    changeUserName,
+    changeUserPassword,
   },
 });
 

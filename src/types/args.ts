@@ -1,3 +1,1 @@
-type ArgsType = { [argName: string]: string };
-
-export default ArgsType;
+export type StringArgsType = { [argName: string]: string };

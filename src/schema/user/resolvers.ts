@@ -3,10 +3,10 @@ import { Request } from "express";
 import bcrypt from "bcrypt";
 
 import { User } from "@models";
-import { IUser, ArgsType } from "@types";
 import { TOKEN_COOKIE_OPTIONS } from "@config";
-import { hashPassword, signJWT } from "@utils";
+import { IUser, StringArgsType } from "@types";
 import { SuccessType } from "@schema/globalTypes";
+import { hashPassword, signJWT, processTitle } from "@utils";
 
 import { UserType } from "./types";
 
@@ -24,7 +24,7 @@ export const user = {
   args: {
     email: { type: GraphQLNonNull(GraphQLString) },
   },
-  resolve: async (_: undefined, { email }: ArgsType): Promise<IUser> => {
+  resolve: async (_: undefined, { email }: StringArgsType): Promise<IUser> => {
     return await User.findOne({ email });
   },
 };
@@ -39,10 +39,10 @@ export const register = {
   },
   resolve: async (
     _: undefined,
-    { name, email, password, passwordConfirmation }: ArgsType
+    { name, email, password, passwordConfirmation }: StringArgsType
   ): Promise<IUser> => {
     if (password.length < 8 || password.length > 16) {
-      throw new Error("Password must contain 8-16 characters.");
+      throw new Error("Password must be 8-16 characters long.");
     }
 
     if (password !== passwordConfirmation) {
@@ -71,7 +71,7 @@ export const login = {
   },
   resolve: async (
     _: undefined,
-    { email, password }: ArgsType,
+    { email, password }: StringArgsType,
     { res }: Request
   ): Promise<IUser> => {
     if (!res) {
@@ -110,6 +110,80 @@ export const logout = {
     }
 
     res.clearCookie("token", TOKEN_COOKIE_OPTIONS);
+    return { success: true };
+  },
+};
+
+export const changeUserName = {
+  type: UserType,
+  args: {
+    name: { type: GraphQLNonNull(GraphQLString) },
+  },
+  resolve: async (
+    _: undefined,
+    { name }: StringArgsType,
+    context: Request
+  ): Promise<IUser> => {
+    const { user } = context;
+
+    if (!user) {
+      throw new Error("Not authenticated.");
+    }
+
+    if (!name) {
+      throw new Error("User name cannot be empty.");
+    }
+
+    return await User.findOneAndUpdate(
+      { email: user.email },
+      { $set: { name: processTitle(name) } },
+      { returnOriginal: false }
+    );
+  },
+};
+
+export const changeUserPassword = {
+  type: SuccessType,
+  args: {
+    newPassword: { type: GraphQLNonNull(GraphQLString) },
+    currentPassword: { type: GraphQLNonNull(GraphQLString) },
+    passwordConfirmation: { type: GraphQLNonNull(GraphQLString) },
+  },
+  resolve: async (
+    _: undefined,
+    { newPassword, currentPassword, passwordConfirmation }: StringArgsType,
+    context: Request
+  ): Promise<{ success: boolean }> => {
+    const { user } = context;
+
+    if (!user) {
+      throw new Error("Not authenticated.");
+    }
+
+    const passwordIsCorrect = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+
+    if (!passwordIsCorrect) {
+      throw new Error("Password is wrong.");
+    }
+
+    if (newPassword.length > 16 || newPassword.length < 8) {
+      throw new Error("Password must be 8-16 characters long.");
+    }
+
+    if (newPassword !== passwordConfirmation) {
+      throw new Error("Passwords to not match.");
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    await User.findOneAndUpdate(
+      { email: user.email },
+      { $set: { password: hashedPassword } }
+    );
+
     return { success: true };
   },
 };

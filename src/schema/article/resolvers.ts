@@ -2,8 +2,9 @@ import { Request } from "express";
 import { GraphQLList, GraphQLNonNull, GraphQLString } from "graphql";
 
 import { Article } from "@models";
-import { ArgsType, IArticle } from "@types";
+import { processTitle } from "@utils";
 import { SuccessType } from "@schema/globalTypes";
+import { StringArgsType, IArticle } from "@types";
 
 import { ArticleType } from "./types";
 
@@ -19,7 +20,7 @@ export const article = {
   args: {
     _id: { type: GraphQLString },
   },
-  resolve: async (_: undefined, { _id }: ArgsType): Promise<IArticle> => {
+  resolve: async (_: undefined, { _id }: StringArgsType): Promise<IArticle> => {
     return await Article.findOne({ _id });
   },
 };
@@ -32,7 +33,7 @@ export const postArticle = {
   },
   resolve: async (
     _: undefined,
-    { body, title }: ArgsType,
+    { body, title }: StringArgsType,
     context: Request
   ): Promise<IArticle> => {
     const { user } = context;
@@ -41,7 +42,11 @@ export const postArticle = {
       throw new Error("Not authenticated.");
     }
 
-    const newArticle = new Article({ body, title, userEmail: user.email });
+    const newArticle = new Article({
+      body,
+      userEmail: user.email,
+      title: processTitle(title),
+    });
 
     return await newArticle.save();
   },
@@ -56,7 +61,7 @@ export const updateArticle = {
   },
   resolve: async (
     _: undefined,
-    { _id, title, body }: ArgsType,
+    { _id, title, body }: StringArgsType,
     context: Request
   ): Promise<IArticle> => {
     const { user } = context;
@@ -80,7 +85,7 @@ export const updateArticle = {
       {
         $set: {
           body: body || article.body,
-          title: title || article.title,
+          title: processTitle(title) || article.title,
         },
       },
       { returnOriginal: false }
@@ -95,7 +100,7 @@ export const deleteArticle = {
   },
   resolve: async (
     _: undefined,
-    { _id }: ArgsType,
+    { _id }: StringArgsType,
     context: Request
   ): Promise<{ success: boolean }> => {
     const { user } = context;
