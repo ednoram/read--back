@@ -39,7 +39,7 @@ export const postArticle = {
     const { user } = context;
 
     if (!user) {
-      throw new Error("Not authenticated.");
+      throw new Error("Not authenticated");
     }
 
     const newArticle = new Article({
@@ -67,17 +67,17 @@ export const updateArticle = {
     const { user } = context;
 
     if (!user) {
-      throw new Error("Not authenticated.");
+      throw new Error("Not authenticated");
     }
 
     const article = await Article.findOne({ _id });
 
     if (!article) {
-      throw new Error("Article was not found.");
+      throw new Error("Article was not found");
     }
 
     if (user.email !== article.userEmail) {
-      throw new Error("Article does not belong to user.");
+      throw new Error("Article does not belong to user");
     }
 
     return await Article.findOneAndUpdate(
@@ -106,13 +106,13 @@ export const deleteArticle = {
     const { user } = context;
 
     if (!user) {
-      throw new Error("Not authenticated.");
+      throw new Error("Not authenticated");
     }
 
     const foundArticle = await Article.findOne({ _id });
 
     if (!foundArticle) {
-      throw new Error("Article was not found.");
+      throw new Error("Article was not found");
     }
 
     await Article.findOneAndDelete({ _id });
