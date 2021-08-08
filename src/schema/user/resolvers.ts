@@ -104,6 +104,26 @@ export const login = {
   },
 };
 
+export const loginWithToken = {
+  type: UserType,
+  resolve: (_: undefined, __: unknown, context: Request): IUser | null => {
+    const { user, res } = context;
+
+    if (!res) throw new Error("Something went wrong");
+
+    if (!user) {
+      res.clearCookie("token", TOKEN_COOKIE_OPTIONS);
+      return null;
+    }
+
+    const newToken = signJWT(user._id, user.email, "24h");
+
+    res.cookie("token", newToken, TOKEN_COOKIE_OPTIONS);
+
+    return user;
+  },
+};
+
 export const logout = {
   type: SuccessType,
   resolve: (
@@ -111,9 +131,7 @@ export const logout = {
     __: unknown,
     { res }: Request
   ): { success: boolean } => {
-    if (!res) {
-      throw new Error("Something went wrong");
-    }
+    if (!res) throw new Error("Something went wrong");
 
     res.clearCookie("token", TOKEN_COOKIE_OPTIONS);
     return { success: true };
@@ -132,13 +150,8 @@ export const changeUserName = {
   ): Promise<IUser> => {
     const { user } = context;
 
-    if (!user) {
-      throw new Error("Not authenticated");
-    }
-
-    if (!name) {
-      throw new Error("User name cannot be empty");
-    }
+    if (!user) throw new Error("Not authenticated");
+    if (!name) throw new Error("User name cannot be empty");
 
     return await User.findOneAndUpdate(
       { email: user.email },
@@ -162,9 +175,7 @@ export const changeUserPassword = {
   ): Promise<{ success: boolean }> => {
     const { user } = context;
 
-    if (!user) {
-      throw new Error("Not authenticated");
-    }
+    if (!user) throw new Error("Not authenticated");
 
     const passwordIsCorrect = await bcrypt.compare(
       currentPassword,

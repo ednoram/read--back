@@ -10,9 +10,7 @@ import { ArticleType } from "./types";
 
 export const articles = {
   type: new GraphQLList(ArticleType),
-  resolve: async (): Promise<IArticle[]> => {
-    return await Article.find();
-  },
+  resolve: async (): Promise<IArticle[]> => await Article.find(),
 };
 
 export const article = {
@@ -20,9 +18,8 @@ export const article = {
   args: {
     _id: { type: GraphQLString },
   },
-  resolve: async (_: undefined, { _id }: StringArgsType): Promise<IArticle> => {
-    return await Article.findOne({ _id });
-  },
+  resolve: async (_: undefined, { _id }: StringArgsType): Promise<IArticle> =>
+    await Article.findOne({ _id }),
 };
 
 export const postArticle = {
@@ -66,15 +63,11 @@ export const updateArticle = {
   ): Promise<IArticle> => {
     const { user } = context;
 
-    if (!user) {
-      throw new Error("Not authenticated");
-    }
+    if (!user) throw new Error("Not authenticated");
 
     const article = await Article.findOne({ _id });
 
-    if (!article) {
-      throw new Error("Article was not found");
-    }
+    if (!article) throw new Error("Article was not found");
 
     if (user.email !== article.userEmail) {
       throw new Error("Article does not belong to user");
@@ -105,15 +98,11 @@ export const deleteArticle = {
   ): Promise<{ success: boolean }> => {
     const { user } = context;
 
-    if (!user) {
-      throw new Error("Not authenticated");
-    }
+    if (!user) throw new Error("Not authenticated");
 
     const foundArticle = await Article.findOne({ _id });
 
-    if (!foundArticle) {
-      throw new Error("Article was not found");
-    }
+    if (!foundArticle) throw new Error("Article was not found");
 
     await Article.findOneAndDelete({ _id });
 

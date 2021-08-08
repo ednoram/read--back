@@ -3,9 +3,10 @@ import { GraphQLSchema, GraphQLObjectType } from "graphql";
 import {
   user,
   users,
-  register,
   login,
   logout,
+  register,
+  loginWithToken,
   changeUserName,
   changeUserPassword,
 } from "./user";
@@ -24,6 +25,7 @@ const RootQuery = new GraphQLObjectType({
     users,
     article,
     articles,
+    loginWithToken,
   },
 });
 
