@@ -50,6 +50,10 @@ export const register = {
       throw new Error("User with this email address already exists");
     }
 
+    if (name.length > 30) {
+      throw new Error("User name is too long");
+    }
+
     if (password.length < 8 || password.length > 16) {
       throw new Error("Password must be 8-16 characters long");
     }
@@ -96,7 +100,7 @@ export const login = {
       throw new Error("Password is wrong");
     }
 
-    const token = signJWT(user._id, email, "24h");
+    const token = signJWT(user._id, email);
 
     res.cookie("token", token, TOKEN_COOKIE_OPTIONS);
 
@@ -116,7 +120,7 @@ export const loginWithToken = {
       return null;
     }
 
-    const newToken = signJWT(user._id, user.email, "24h");
+    const newToken = signJWT(user._id, user.email);
 
     res.cookie("token", newToken, TOKEN_COOKIE_OPTIONS);
 
@@ -152,6 +156,7 @@ export const changeUserName = {
 
     if (!user) throw new Error("Not authenticated");
     if (!name) throw new Error("User name cannot be empty");
+    if (name.length > 30) throw new Error("Name is too long");
 
     return await User.findOneAndUpdate(
       { email: user.email },

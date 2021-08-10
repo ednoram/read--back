@@ -16,7 +16,7 @@ export const articles = {
 export const article = {
   type: ArticleType,
   args: {
-    _id: { type: GraphQLString },
+    _id: { type: GraphQLNonNull(GraphQLString) },
   },
   resolve: async (_: undefined, { _id }: StringArgsType): Promise<IArticle> =>
     await Article.findOne({ _id }),
@@ -25,8 +25,8 @@ export const article = {
 export const postArticle = {
   type: ArticleType,
   args: {
-    body: { type: GraphQLString },
-    title: { type: GraphQLString },
+    body: { type: GraphQLNonNull(GraphQLString) },
+    title: { type: GraphQLNonNull(GraphQLString) },
   },
   resolve: async (
     _: undefined,
@@ -35,14 +35,15 @@ export const postArticle = {
   ): Promise<IArticle> => {
     const { user } = context;
 
-    if (!user) {
-      throw new Error("Not authenticated");
-    }
+    if (!user) throw new Error("Not authenticated");
+    if (!title) throw new Error("Title is required");
+    if (title.length > 50) throw new Error("Title is too long");
+    if (!body) throw new Error("Body is required");
 
     const newArticle = new Article({
-      body,
       userEmail: user.email,
       title: processTitle(title),
+      body: body[0].toUpperCase() + body.slice(1),
     });
 
     return await newArticle.save();
@@ -73,12 +74,16 @@ export const updateArticle = {
       throw new Error("Article does not belong to user");
     }
 
+    if (title === "") throw new Error("Title cannot be empty");
+    if (title.length > 50) throw new Error("Title is too long");
+    if (body === "") throw new Error("Body cannot be empty");
+
     return await Article.findOneAndUpdate(
       { _id },
       {
         $set: {
-          body: body || article.body,
           title: processTitle(title) || article.title,
+          body: body[0].toUpperCase() + body.slice(1) || article.body,
         },
       },
       { returnOriginal: false }

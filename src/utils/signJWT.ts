@@ -1,13 +1,9 @@
 import jwt from "jsonwebtoken";
 
-import { TOKEN_SECRET } from "@config";
+import { TOKEN_EXPIRY_SECONDS, TOKEN_SECRET } from "@config";
 
-const signJWT = (
-  _id: string,
-  email: string,
-  duration: number | string
-): string => {
-  return jwt.sign({ email, _id, duration }, TOKEN_SECRET);
+const signJWT = (_id: string, email: string): string => {
+  return jwt.sign({ email, _id, duration: TOKEN_EXPIRY_SECONDS }, TOKEN_SECRET);
 };
 
 export default signJWT;
