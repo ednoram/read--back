@@ -6,8 +6,8 @@ import {
   login,
   logout,
   register,
+  updateUser,
   loginWithToken,
-  changeUserName,
   changeUserPassword,
 } from "./user";
 import {
@@ -35,10 +35,10 @@ const RootMutation = new GraphQLObjectType({
     login,
     logout,
     register,
+    updateUser,
     postArticle,
     updateArticle,
     deleteArticle,
-    changeUserName,
     changeUserPassword,
   },
 });

@@ -14,6 +14,10 @@ const User = new Schema(
       type: String,
       required: true,
     },
+    about: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

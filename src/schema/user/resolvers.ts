@@ -152,25 +152,27 @@ export const logout = {
   },
 };
 
-export const changeUserName = {
+export const updateUser = {
   type: UserType,
   args: {
-    name: { type: GraphQLNonNull(GraphQLString) },
+    name: { type: GraphQLString },
+    about: { type: GraphQLString },
   },
   resolve: async (
     _: undefined,
-    { name }: StringArgsType,
+    { name, about }: StringArgsType,
     context: Request
   ): Promise<IUser> => {
     const { user } = context;
 
     if (!user) throw new Error("Not authenticated");
-    if (!name) throw new Error("User name cannot be empty");
-    if (name.length > 30) throw new Error("Name is too long");
+    if (name === "") throw new Error("User name cannot be empty");
+    if (name && name.length > 30) throw new Error("Name is too long");
+    if (about && about.length > 400) throw new Error("About is too long");
 
     return await User.findOneAndUpdate(
       { email: user.email },
-      { $set: { name: name.trim() } },
+      { $set: { name: name.trim(), about: about.trim() } },
       { returnOriginal: false }
     );
   },

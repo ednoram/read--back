@@ -7,5 +7,7 @@ export const ArticleType = new GraphQLObjectType({
     body: { type: GraphQLString },
     title: { type: GraphQLString },
     userEmail: { type: GraphQLString },
+    createdAt: { type: GraphQLString },
+    updatedAt: { type: GraphQLString },
   },
 });
