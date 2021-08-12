@@ -111,20 +111,30 @@ export const login = {
 export const loginWithToken = {
   type: UserType,
   resolve: (_: undefined, __: unknown, context: Request): IUser | null => {
-    const { user, res } = context;
+    try {
+      const { user, res } = context;
 
-    if (!res) throw new Error("Something went wrong");
+      if (!res) throw new Error("Something went wrong");
 
-    if (!user) {
-      res.clearCookie("token", TOKEN_COOKIE_OPTIONS);
+      if (!user) {
+        res.clearCookie("token", TOKEN_COOKIE_OPTIONS);
+        return null;
+      }
+
+      const newToken = signJWT(user._id, user.email);
+
+      res.cookie("token", newToken, TOKEN_COOKIE_OPTIONS);
+
+      return user;
+    } catch {
+      const { res } = context;
+
+      if (res) {
+        res.clearCookie("token", TOKEN_COOKIE_OPTIONS);
+      }
+
       return null;
     }
-
-    const newToken = signJWT(user._id, user.email);
-
-    res.cookie("token", newToken, TOKEN_COOKIE_OPTIONS);
-
-    return user;
   },
 };
 

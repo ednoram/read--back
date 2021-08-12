@@ -10,7 +10,15 @@ import { ArticleType } from "./types";
 
 export const articles = {
   type: new GraphQLList(ArticleType),
-  resolve: async (): Promise<IArticle[]> => await Article.find(),
+  args: {
+    userEmail: { type: GraphQLString },
+  },
+  resolve: async (
+    _: undefined,
+    { userEmail }: StringArgsType
+  ): Promise<IArticle[]> => {
+    return Article.find(userEmail ? { userEmail } : {});
+  },
 };
 
 export const article = {
@@ -18,8 +26,9 @@ export const article = {
   args: {
     _id: { type: GraphQLNonNull(GraphQLString) },
   },
-  resolve: async (_: undefined, { _id }: StringArgsType): Promise<IArticle> =>
-    await Article.findOne({ _id }),
+  resolve: async (_: undefined, { _id }: StringArgsType): Promise<IArticle> => {
+    return await Article.findOne({ _id });
+  },
 };
 
 export const postArticle = {
