@@ -3,4 +3,6 @@ export interface IArticle {
   body: string;
   title: string;
   userEmail: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

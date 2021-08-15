@@ -17,7 +17,14 @@ export const articles = {
     _: undefined,
     { userEmail }: StringArgsType
   ): Promise<IArticle[]> => {
-    return Article.find(userEmail ? { userEmail } : {});
+    const articles: IArticle[] = await Article.find(
+      userEmail ? { userEmail } : {}
+    );
+
+    return articles.sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
   },
 };
 
@@ -46,8 +53,9 @@ export const postArticle = {
 
     if (!user) throw new Error("Not authenticated");
     if (!title) throw new Error("Title is required");
-    if (title.length > 50) throw new Error("Title is too long");
+    if (title.length > 60) throw new Error("Title is too long");
     if (!body) throw new Error("Body is required");
+    if (body.length > 20000) throw new Error("Body is too long");
 
     const newArticle = new Article({
       userEmail: user.email,
@@ -84,8 +92,9 @@ export const updateArticle = {
     }
 
     if (title === "") throw new Error("Title cannot be empty");
-    if (title.length > 50) throw new Error("Title is too long");
+    if (title.length > 60) throw new Error("Title is too long");
     if (body === "") throw new Error("Body cannot be empty");
+    if (body.length > 20000) throw new Error("Body is too long");
 
     return await Article.findOneAndUpdate(
       { _id },
