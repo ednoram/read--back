@@ -17,6 +17,7 @@ import {
   deleteArticle,
   updateArticle,
 } from "./article";
+import { savedArticles, saveArticle, removeSavedArticle } from "./savedArticle";
 
 const RootQuery = new GraphQLObjectType({
   name: "RootQuery",
@@ -25,6 +26,7 @@ const RootQuery = new GraphQLObjectType({
     users,
     article,
     articles,
+    savedArticles,
     loginWithToken,
   },
 });
@@ -37,8 +39,10 @@ const RootMutation = new GraphQLObjectType({
     register,
     updateUser,
     postArticle,
+    saveArticle,
     updateArticle,
     deleteArticle,
+    removeSavedArticle,
     changeUserPassword,
   },
 });
