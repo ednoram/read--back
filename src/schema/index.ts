@@ -11,6 +11,13 @@ import {
   changeUserPassword,
 } from "./user";
 import {
+  comments,
+  comment,
+  postComment,
+  updateComment,
+  deleteComment,
+} from "./comment";
+import {
   article,
   articles,
   postArticle,
@@ -25,6 +32,8 @@ const RootQuery = new GraphQLObjectType({
     user,
     users,
     article,
+    comment,
+    comments,
     articles,
     savedArticles,
     loginWithToken,
@@ -40,6 +49,9 @@ const RootMutation = new GraphQLObjectType({
     updateUser,
     postArticle,
     saveArticle,
+    postComment,
+    updateComment,
+    deleteComment,
     updateArticle,
     deleteArticle,
     removeSavedArticle,

@@ -1,4 +1,4 @@
-export interface IUser {
+interface IUser {
   _id: string;
   name: string;
   email: string;
@@ -6,3 +6,5 @@ export interface IUser {
   updatedAt: Date;
   password: string;
 }
+
+export default IUser;

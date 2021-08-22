@@ -172,7 +172,12 @@ export const updateUser = {
 
     return await User.findOneAndUpdate(
       { email: user.email },
-      { $set: { name: name.trim(), about: about.trim() } },
+      {
+        $set: {
+          name: name.trim(),
+          about: about.trim(),
+        },
+      },
       { returnOriginal: false }
     );
   },

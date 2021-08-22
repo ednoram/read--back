@@ -1,4 +1,4 @@
-export interface IArticle {
+interface IArticle {
   _id: string;
   body: string;
   title: string;
@@ -7,3 +7,5 @@ export interface IArticle {
   userEmail: string;
   toObject: () => IArticle;
 }
+
+export default IArticle;
