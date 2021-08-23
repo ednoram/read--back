@@ -60,8 +60,8 @@ export const saveArticle = {
     }
 
     const foundSavedArticle = await SavedArticle.findOne({
-      userEmail: user.email,
       articleId,
+      userEmail: user.email,
     });
 
     if (foundSavedArticle) {

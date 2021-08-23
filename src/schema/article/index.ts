@@ -1,9 +1,9 @@
 import { Request } from "express";
 import { GraphQLList, GraphQLNonNull, GraphQLString } from "graphql";
 
-import { Article } from "@models";
 import { SuccessType } from "@schema/globalTypes";
 import { StringArgsType, IArticle } from "@types";
+import { Article, Comment, SavedArticle } from "@models";
 import { processTitle, processArticlesData } from "@utils";
 
 import { ArticleType } from "./types";
@@ -124,6 +124,10 @@ export const deleteArticle = {
     const foundArticle = await Article.findOne({ _id });
 
     if (!foundArticle) throw new Error("Article was not found");
+
+    await Comment.deleteMany({ articleId: _id });
+
+    await SavedArticle.deleteMany({ articleId: _id });
 
     await Article.findOneAndDelete({ _id });
 
