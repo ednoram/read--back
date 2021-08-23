@@ -1,27 +1,42 @@
+import { GraphQLInt, GraphQLString, GraphQLNonNull } from "graphql";
 import { Request } from "express";
-import { GraphQLList, GraphQLNonNull, GraphQLString } from "graphql";
 
 import { SuccessType } from "@schema/globalTypes";
 import { StringArgsType, IArticle } from "@types";
 import { Article, Comment, SavedArticle } from "@models";
 import { processTitle, processArticlesData } from "@utils";
 
-import { ArticleType } from "./types";
+import { ArticleType, ArticlesType } from "./types";
 
 export const articles = {
-  type: new GraphQLList(ArticleType),
+  type: ArticlesType,
   args: {
+    limit: { type: GraphQLInt },
+    offset: { type: GraphQLInt },
     userEmail: { type: GraphQLString },
   },
   resolve: async (
     _: undefined,
-    { userEmail }: StringArgsType
-  ): Promise<IArticle[]> => {
+    { limit, offset, userEmail }: { [argName: string]: string | number }
+  ): Promise<{ totalCount: number; articles: IArticle[] }> => {
     const articles: IArticle[] = await Article.find(
       userEmail ? { userEmail } : {}
     );
 
-    return processArticlesData(articles);
+    const processedData = processArticlesData(articles);
+
+    const finalArticles =
+      limit !== undefined
+        ? processedData.slice(
+            Number(offset || 0),
+            Number(offset || 0) + Number(limit)
+          )
+        : processedData;
+
+    return {
+      articles: finalArticles,
+      totalCount: articles.length,
+    };
   },
 };
 

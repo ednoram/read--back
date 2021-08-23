@@ -1,4 +1,9 @@
-import { GraphQLObjectType, GraphQLString } from "graphql";
+import {
+  GraphQLInt,
+  GraphQLList,
+  GraphQLString,
+  GraphQLObjectType,
+} from "graphql";
 
 export const ArticleType = new GraphQLObjectType({
   name: "ArticleType",
@@ -9,5 +14,13 @@ export const ArticleType = new GraphQLObjectType({
     userEmail: { type: GraphQLString },
     createdAt: { type: GraphQLString },
     updatedAt: { type: GraphQLString },
+  },
+});
+
+export const ArticlesType = new GraphQLObjectType({
+  name: "ArticlesType",
+  fields: {
+    totalCount: { type: GraphQLInt },
+    articles: { type: new GraphQLList(ArticleType) },
   },
 });
