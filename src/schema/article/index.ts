@@ -14,18 +14,34 @@ export const articles = {
     limit: { type: GraphQLInt },
     offset: { type: GraphQLInt },
     userEmail: { type: GraphQLString },
+    searchFilter: { type: GraphQLString },
   },
   resolve: async (
     _: undefined,
-    { limit, offset, userEmail }: { [argName: string]: string | number }
+    {
+      limit,
+      offset,
+      userEmail,
+      searchFilter,
+    }: { [argName: string]: string | number }
   ): Promise<{ totalCount: number; articles: IArticle[] }> => {
     const articles: IArticle[] = await Article.find(
       userEmail ? { userEmail } : {}
     );
 
-    const processedData = processArticlesData(articles);
+    const filteredArticles = searchFilter
+      ? articles.filter((article) =>
+          article.title
+            .toLocaleLowerCase()
+            .includes(
+              String(searchFilter).trim().replace(/\s\s+/g, " ").toLowerCase()
+            )
+        )
+      : articles;
 
-    const finalArticles =
+    const processedData = processArticlesData(filteredArticles);
+
+    const returnedArticles =
       limit !== undefined
         ? processedData.slice(
             Number(offset || 0),
@@ -34,8 +50,8 @@ export const articles = {
         : processedData;
 
     return {
-      articles: finalArticles,
-      totalCount: articles.length,
+      articles: returnedArticles,
+      totalCount: filteredArticles.length,
     };
   },
 };
