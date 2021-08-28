@@ -1,5 +1,5 @@
-import { GraphQLNonNull, GraphQLString, GraphQLList } from "graphql";
 import { Request } from "express";
+import { GraphQLNonNull, GraphQLString, GraphQLList } from "graphql";
 
 import { processArticlesData } from "@utils";
 import { SavedArticle, Article } from "@models";

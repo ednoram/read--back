@@ -1,5 +1,5 @@
-import { GraphQLInt, GraphQLString, GraphQLNonNull } from "graphql";
 import { Request } from "express";
+import { GraphQLInt, GraphQLString, GraphQLNonNull } from "graphql";
 
 import { SuccessType } from "@schema/globalTypes";
 import { StringArgsType, IArticle } from "@types";
@@ -29,13 +29,14 @@ export const articles = {
       userEmail ? { userEmail } : {}
     );
 
+    const processedSearchFilter = String(searchFilter)
+      .trim()
+      .replace(/\s\s+/g, " ")
+      .toLowerCase();
+
     const filteredArticles = searchFilter
       ? articles.filter((article) =>
-          article.title
-            .toLocaleLowerCase()
-            .includes(
-              String(searchFilter).trim().replace(/\s\s+/g, " ").toLowerCase()
-            )
+          article.title.toLocaleLowerCase().includes(processedSearchFilter)
         )
       : articles;
 

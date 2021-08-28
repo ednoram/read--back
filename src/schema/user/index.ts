@@ -1,6 +1,6 @@
-import { GraphQLList, GraphQLNonNull, GraphQLString } from "graphql";
-import { Request } from "express";
 import bcrypt from "bcrypt";
+import { Request } from "express";
+import { GraphQLInt, GraphQLString, GraphQLNonNull } from "graphql";
 
 import { User } from "@models";
 import { TOKEN_COOKIE_OPTIONS } from "@config";
@@ -8,13 +8,45 @@ import { IUser, StringArgsType } from "@types";
 import { hashPassword, signJWT } from "@utils";
 import { SuccessType } from "@schema/globalTypes";
 
-import { UserType } from "./types";
+import { UserType, UsersType } from "./types";
 
 export const users = {
-  name: "users",
-  type: new GraphQLList(UserType),
-  resolve: async (): Promise<IUser[]> => {
-    return await User.find();
+  type: UsersType,
+  args: {
+    limit: { type: GraphQLInt },
+    offset: { type: GraphQLInt },
+    searchFilter: { type: GraphQLString },
+  },
+  resolve: async (
+    _: undefined,
+    { searchFilter, limit, offset }: { [argName: string]: string | number }
+  ): Promise<{ totalCount: number; users: IUser[] }> => {
+    const allUsers: IUser[] = await User.find();
+
+    const processedSearchFilter = searchFilter
+      ? String(searchFilter).trim().replace(/\s\s+/g, " ").toLowerCase()
+      : "";
+
+    const filteredUsers = searchFilter
+      ? allUsers.filter(
+          (user) =>
+            user.name.toLowerCase().includes(processedSearchFilter) ||
+            user.email.toLowerCase().includes(processedSearchFilter)
+        )
+      : allUsers;
+
+    const returnedUsers =
+      limit !== undefined
+        ? filteredUsers.slice(
+            Number(offset) || 0,
+            (Number(offset) || 0) + Number(limit)
+          )
+        : filteredUsers;
+
+    return {
+      users: returnedUsers,
+      totalCount: filteredUsers.length,
+    };
   },
 };
 
