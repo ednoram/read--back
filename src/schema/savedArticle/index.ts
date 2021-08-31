@@ -9,7 +9,6 @@ import { IArticle, StringArgsType } from "@types";
 import { ArticleType } from "@schema/article/types";
 
 export const savedArticles = {
-  name: "savedArticles",
   type: new GraphQLList(ArticleType),
   resolve: async (
     _: undefined,
@@ -37,7 +36,6 @@ export const savedArticles = {
 };
 
 export const saveArticle = {
-  name: "saveArticle",
   type: SuccessType,
   args: {
     articleId: { type: GraphQLNonNull(GraphQLString) },
@@ -80,7 +78,6 @@ export const saveArticle = {
 };
 
 export const removeSavedArticle = {
-  name: "removeSavedArticle",
   type: SuccessType,
   args: {
     articleId: { type: GraphQLNonNull(GraphQLString) },

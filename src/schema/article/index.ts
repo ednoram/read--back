@@ -3,8 +3,8 @@ import { GraphQLInt, GraphQLString, GraphQLNonNull } from "graphql";
 
 import { SuccessType } from "@schema/globalTypes";
 import { StringArgsType, IArticle } from "@types";
-import { Article, Comment, SavedArticle } from "@models";
 import { processTitle, processArticlesData } from "@utils";
+import { Article, Comment, Like, SavedArticle } from "@models";
 
 import { ArticleType, ArticlesType } from "./types";
 
@@ -62,8 +62,39 @@ export const article = {
   args: {
     _id: { type: GraphQLNonNull(GraphQLString) },
   },
-  resolve: async (_: undefined, { _id }: StringArgsType): Promise<IArticle> => {
-    return await Article.findOne({ _id });
+  resolve: async (
+    _: undefined,
+    { _id }: StringArgsType,
+    context: Request
+  ): Promise<IArticle> => {
+    const article = await Article.findOne({ _id });
+    const likes = await Like.find({ articleId: _id });
+
+    const { user } = context;
+
+    const foundUserLike =
+      user &&
+      (await Like.findOne({
+        articleId: _id,
+        userEmail: user.email,
+      }));
+
+    const foundUserSavedArticle =
+      user &&
+      (await SavedArticle.findOne({
+        articleId: _id,
+        userEmail: user.email,
+      }));
+
+    const isLiked = user ? Boolean(foundUserLike) : null;
+    const isSaved = user ? Boolean(foundUserSavedArticle) : null;
+
+    return {
+      ...article.toObject(),
+      likesCount: likes.length,
+      isLiked,
+      isSaved,
+    };
   },
 };
 

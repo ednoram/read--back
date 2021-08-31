@@ -1,4 +1,9 @@
-import { GraphQLObjectType, GraphQLString } from "graphql";
+import {
+  GraphQLInt,
+  GraphQLList,
+  GraphQLString,
+  GraphQLObjectType,
+} from "graphql";
 
 export const CommentType = new GraphQLObjectType({
   name: "CommentType",
@@ -7,5 +12,13 @@ export const CommentType = new GraphQLObjectType({
     text: { type: GraphQLString },
     userEmail: { type: GraphQLString },
     articleId: { type: GraphQLString },
+  },
+});
+
+export const CommentsType = new GraphQLObjectType({
+  name: "CommentsType",
+  fields: {
+    totalCount: { type: GraphQLInt },
+    comments: { type: new GraphQLList(CommentType) },
   },
 });

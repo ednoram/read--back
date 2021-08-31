@@ -51,7 +51,6 @@ export const users = {
 };
 
 export const user = {
-  name: "user",
   type: UserType,
   args: {
     email: { type: GraphQLNonNull(GraphQLString) },

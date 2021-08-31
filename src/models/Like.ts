@@ -1,20 +1,20 @@
 import { Schema, model } from "mongoose";
 
-const SavedArticle = new Schema(
+const Like = new Schema(
   {
-    userEmail: {
+    articleId: {
       type: String,
       required: true,
     },
-    articleId: {
+    userEmail: {
       type: String,
       required: true,
     },
   },
   {
     timestamps: true,
-    collection: "saved_articles",
+    collection: "likes",
   }
 );
 
-export default model("SavedArticle", SavedArticle);
+export default model("Like", Like);

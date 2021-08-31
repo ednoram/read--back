@@ -1,21 +1,41 @@
 import { Request } from "express";
-import { GraphQLNonNull, GraphQLString, GraphQLList } from "graphql";
+import { GraphQLInt, GraphQLString, GraphQLNonNull } from "graphql";
 
 import { Comment, Article } from "@models";
 import { IComment, StringArgsType } from "@types";
 
-import { CommentType } from "./types";
+import { CommentType, CommentsType } from "./types";
 
 export const comments = {
-  type: new GraphQLList(CommentType),
+  type: CommentsType,
   args: {
+    limit: { type: GraphQLInt },
+    offset: { type: GraphQLInt },
     articleId: { type: GraphQLNonNull(GraphQLString) },
   },
   resolve: async (
     _: undefined,
-    { articleId }: StringArgsType
-  ): Promise<IComment[]> => {
-    return await Comment.find({ articleId });
+    { articleId, limit, offset }: { [argName: string]: string | number }
+  ): Promise<{ comments: IComment[]; totalCount: number }> => {
+    const comments: IComment[] = await Comment.find({ articleId });
+
+    const sortedComments = comments.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    const filteredComments =
+      limit !== undefined
+        ? sortedComments.slice(
+            Number(offset || 0),
+            Number(offset || 0) + Number(limit)
+          )
+        : sortedComments;
+
+    return {
+      comments: filteredComments,
+      totalCount: comments.length,
+    };
   },
 };
 
@@ -61,6 +81,15 @@ export const postComment = {
 
     if (!foundArticle) {
       throw new Error("Article not found");
+    }
+
+    const foundComments = await Comment.find({
+      articleId,
+      userEmail: user.email,
+    });
+
+    if (foundComments.length > 10) {
+      throw new Error("You can not have more than 10 comments on 1 article");
     }
 
     const comment = new Comment({

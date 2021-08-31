@@ -2,6 +2,7 @@ import {
   GraphQLInt,
   GraphQLList,
   GraphQLString,
+  GraphQLBoolean,
   GraphQLObjectType,
 } from "graphql";
 
@@ -11,6 +12,9 @@ export const ArticleType = new GraphQLObjectType({
     _id: { type: GraphQLString },
     body: { type: GraphQLString },
     title: { type: GraphQLString },
+    likesCount: { type: GraphQLInt },
+    isLiked: { type: GraphQLBoolean },
+    isSaved: { type: GraphQLBoolean },
     userEmail: { type: GraphQLString },
     createdAt: { type: GraphQLString },
     updatedAt: { type: GraphQLString },
