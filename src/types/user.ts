@@ -5,6 +5,7 @@ interface IUser {
   createdAt: Date;
   updatedAt: Date;
   password: string;
+  isVerified: boolean;
 }
 
 export default IUser;

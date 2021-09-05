@@ -2,11 +2,11 @@ import bcrypt from "bcrypt";
 import { Request } from "express";
 import { GraphQLInt, GraphQLString, GraphQLNonNull } from "graphql";
 
-import { User } from "@models";
 import { TOKEN_COOKIE_OPTIONS } from "@config";
 import { IUser, StringArgsType } from "@types";
-import { hashPassword, signJWT } from "@utils";
+import { User, VerificationCode } from "@models";
 import { SuccessType } from "@schema/globalTypes";
+import { hashPassword, sendVerificationEmail, signJWT } from "@utils";
 
 import { UserType, UsersType } from "./types";
 
@@ -21,7 +21,7 @@ export const users = {
     _: undefined,
     { searchFilter, limit, offset }: { [argName: string]: string | number }
   ): Promise<{ totalCount: number; users: IUser[] }> => {
-    const allUsers: IUser[] = await User.find();
+    const allUsers: IUser[] = await User.find({ isVerified: true });
 
     const processedSearchFilter = searchFilter
       ? String(searchFilter).trim().replace(/\s\s+/g, " ").toLowerCase()
@@ -61,7 +61,7 @@ export const user = {
 };
 
 export const register = {
-  type: UserType,
+  type: SuccessType,
   args: {
     name: { type: GraphQLNonNull(GraphQLString) },
     email: { type: GraphQLNonNull(GraphQLString) },
@@ -71,14 +71,23 @@ export const register = {
   resolve: async (
     _: undefined,
     { name, email, password, passwordConfirmation }: StringArgsType
-  ): Promise<IUser> => {
+  ): Promise<{ success: boolean }> => {
     if (!name) throw new Error("Name is required");
     if (!email) throw new Error("Email address is required");
 
-    const foundUser = await User.findOne({ email });
+    const foundUser = await User.findOne({ email, isVerified: true });
 
     if (foundUser) {
       throw new Error("User with this email address already exists");
+    }
+
+    const foundNotVerifiedUser = await User.findOne({
+      email,
+      isVerified: false,
+    });
+
+    if (foundNotVerifiedUser) {
+      await User.findOneAndDelete({ email });
     }
 
     if (name.length > 30) {
@@ -94,14 +103,19 @@ export const register = {
     }
 
     const hashedPassword = await hashPassword(password);
+
     const newUser = new User({
+      isVerified: false,
       name: name.trim(),
       email: email.trim(),
       password: hashedPassword,
     });
-    const response = await newUser.save();
 
-    return response;
+    const user = await newUser.save();
+
+    await sendVerificationEmail(user);
+
+    return { success: true };
   },
 };
 
@@ -129,6 +143,10 @@ export const login = {
 
     if (!passwordIsCorrect) {
       throw new Error("Password is wrong");
+    }
+
+    if (!user.isVerified) {
+      throw new Error("Account is not verified");
     }
 
     const token = signJWT(user._id, email);
@@ -211,6 +229,42 @@ export const updateUser = {
       },
       { returnOriginal: false }
     );
+  },
+};
+
+export const verifyAccount = {
+  type: SuccessType,
+  args: {
+    code: { type: GraphQLNonNull(GraphQLString) },
+    userEmail: { type: GraphQLNonNull(GraphQLString) },
+  },
+  resolve: async (
+    _: undefined,
+    { userEmail, code }: StringArgsType
+  ): Promise<{ success: boolean }> => {
+    const foundVerificationCode = await VerificationCode.findOne({ userEmail });
+
+    if (!foundVerificationCode) {
+      throw new Error("Verification code not found");
+    }
+
+    const codeIsCorrect = await bcrypt.compare(
+      code,
+      foundVerificationCode.code
+    );
+
+    if (!codeIsCorrect) {
+      throw new Error("Code is incorrect");
+    }
+
+    await VerificationCode.findOneAndDelete({ userEmail });
+
+    await User.findOneAndUpdate(
+      { email: userEmail },
+      { $set: { isVerified: true } }
+    );
+
+    return { success: true };
   },
 };
 

@@ -7,6 +7,7 @@ import {
   logout,
   register,
   updateUser,
+  verifyAccount,
   loginWithToken,
   changeUserPassword,
 } from "./user";
@@ -52,6 +53,7 @@ const RootMutation = new GraphQLObjectType({
     saveArticle,
     likeArticle,
     postComment,
+    verifyAccount,
     unlikeArticle,
     updateComment,
     deleteComment,

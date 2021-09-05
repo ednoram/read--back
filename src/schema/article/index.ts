@@ -192,6 +192,8 @@ export const deleteArticle = {
 
     await SavedArticle.deleteMany({ articleId: _id });
 
+    await Like.deleteMany({ articleId: _id });
+
     await Article.findOneAndDelete({ _id });
 
     return { success: true };
