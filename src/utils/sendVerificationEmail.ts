@@ -8,7 +8,7 @@ const sendVerificationEmail = async (user: IUser): Promise<void> => {
     throw new Error("User is verified");
   }
 
-  const code = String(Math.floor(Math.random() * 10000));
+  const code = String(Math.floor(Math.random() * 1000000));
 
   const foundVerificationCode = await VerificationCode.findOne({
     userEmail: user.email,
@@ -33,9 +33,9 @@ const sendVerificationEmail = async (user: IUser): Promise<void> => {
 
   const mailOptions = {
     from: `"Read" ${MAIL_SENDER_EMAIL}`,
-    html: mailHtml,
     to: user.email,
     subject: mailSubject,
+    html: mailHtml,
   };
 
   await mailTransporter.sendMail(mailOptions);

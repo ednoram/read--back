@@ -26,6 +26,8 @@ import {
   updateArticle,
 } from "./article";
 import { likeArticle, unlikeArticle } from "./like";
+import { sendVerificationCode } from "./verificationCode";
+import { sendResetPasswordEmail, resetPassword } from "./resetPassword";
 import { savedArticles, saveArticle, removeSavedArticle } from "./savedArticle";
 
 const RootQuery = new GraphQLObjectType({
@@ -53,6 +55,7 @@ const RootMutation = new GraphQLObjectType({
     saveArticle,
     likeArticle,
     postComment,
+    resetPassword,
     verifyAccount,
     unlikeArticle,
     updateComment,
@@ -61,6 +64,8 @@ const RootMutation = new GraphQLObjectType({
     deleteArticle,
     removeSavedArticle,
     changeUserPassword,
+    sendVerificationCode,
+    sendResetPasswordEmail,
   },
 });
 
