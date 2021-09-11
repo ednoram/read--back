@@ -8,6 +8,7 @@
     "alwaysStrict": true,
     "noUnusedParameters": true,
     "moduleResolution": "node",
+    "outDir": ".build",
     "baseUrl": ".",
     "paths": {
       "@utils": ["src/utils"],
@@ -17,7 +18,12 @@
       "@models": ["src/models"],
       "@schema/*": ["src/schema/*"],
       "@middleware": ["src/middleware"]
-    }
+    },
+    "plugins": [
+      {
+        "transform": "@zerollup/ts-transform-paths"
+      }
+    ]
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
