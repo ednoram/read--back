@@ -1,16 +1,16 @@
 # Read - Back
 
-An API for a website, where you can learn and share your knowledge.
+An API for a website where you can find articles and post your own ones.
 
 ## Features
 
-- Authentication. Login, register.
+- Authentication (login, register).
 - Get articles with limit and offset.
 - Post, edit, delete articles.
 - Like articles.
 - Save articles (privately).
 - Get article comments with limit and offset.
-- Write comments (post, edit, delete).
+- Post, edit, delete comments.
 - Change user name, password, etc.
 - Verify account with email.
 - Forgot password, reset password with email.
