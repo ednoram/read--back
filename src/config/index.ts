@@ -14,6 +14,7 @@ export const TOKEN_EXPIRY_SECONDS = 7 * 24 * 3600;
 export const TOKEN_COOKIE_OPTIONS: CookieOptions = {
   secure: true,
   httpOnly: true,
+  domain: CLIENT_URL,
   maxAge: TOKEN_EXPIRY_SECONDS * 1000,
   sameSite: IS_PRODUCTION ? "none" : "lax",
 };
