@@ -9,7 +9,7 @@ const auth = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const token = req.cookies.token;
+    const token = String(req.headers.authorization);
 
     if (!token) {
       req.user = null;

@@ -4,7 +4,6 @@ import {
   user,
   users,
   login,
-  logout,
   register,
   updateUser,
   verifyAccount,
@@ -48,7 +47,6 @@ const RootMutation = new GraphQLObjectType({
   name: "RootMutation",
   fields: {
     login,
-    logout,
     register,
     updateUser,
     postArticle,

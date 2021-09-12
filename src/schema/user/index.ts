@@ -2,13 +2,12 @@ import bcrypt from "bcrypt";
 import { Request } from "express";
 import { GraphQLInt, GraphQLString, GraphQLNonNull } from "graphql";
 
-import { TOKEN_COOKIE_OPTIONS } from "@config";
 import { IUser, StringArgsType } from "@types";
 import { User, VerificationCode } from "@models";
 import { SuccessType } from "@schema/globalTypes";
 import { hashPassword, sendVerificationEmail, signJWT } from "@utils";
 
-import { UserType, UsersType } from "./types";
+import { UserType, UsersType, LoginType } from "./types";
 
 export const users = {
   type: UsersType,
@@ -120,7 +119,7 @@ export const register = {
 };
 
 export const login = {
-  type: UserType,
+  type: LoginType,
   args: {
     email: { type: GraphQLNonNull(GraphQLString) },
     password: { type: GraphQLNonNull(GraphQLString) },
@@ -129,7 +128,7 @@ export const login = {
     _: undefined,
     { email, password }: StringArgsType,
     { res }: Request
-  ): Promise<IUser> => {
+  ): Promise<{ user: IUser; token: string }> => {
     if (!res) throw new Error("Something went wrong");
     if (!email) throw new Error("Email address is required");
 
@@ -151,53 +150,30 @@ export const login = {
 
     const token = signJWT(user._id, email);
 
-    res.cookie("token", token, TOKEN_COOKIE_OPTIONS);
-
-    return user;
+    return { user, token };
   },
 };
 
 export const loginWithToken = {
-  type: UserType,
-  resolve: (_: undefined, __: unknown, context: Request): IUser | null => {
+  type: LoginType,
+  resolve: (
+    _: undefined,
+    __: unknown,
+    context: Request
+  ): { user: IUser; token: string } | null => {
     try {
       const { user, res } = context;
 
       if (!res) throw new Error("Something went wrong");
 
-      if (!user) {
-        res.clearCookie("token", TOKEN_COOKIE_OPTIONS);
-        return null;
-      }
+      if (!user) return null;
 
-      const newToken = signJWT(user._id, user.email);
+      const token = signJWT(user._id, user.email);
 
-      res.cookie("token", newToken, TOKEN_COOKIE_OPTIONS);
-
-      return user;
+      return { user, token };
     } catch {
-      const { res } = context;
-
-      if (res) {
-        res.clearCookie("token", TOKEN_COOKIE_OPTIONS);
-      }
-
       return null;
     }
-  },
-};
-
-export const logout = {
-  type: SuccessType,
-  resolve: (
-    _: undefined,
-    __: unknown,
-    { res }: Request
-  ): { success: boolean } => {
-    if (!res) throw new Error("Something went wrong");
-
-    res.clearCookie("token", TOKEN_COOKIE_OPTIONS);
-    return { success: true };
   },
 };
 

@@ -23,3 +23,11 @@ export const UsersType = new GraphQLObjectType({
     users: { type: new GraphQLList(UserType) },
   },
 });
+
+export const LoginType = new GraphQLObjectType({
+  name: "LoginType",
+  fields: {
+    user: { type: UserType },
+    token: { type: GraphQLString },
+  },
+});
