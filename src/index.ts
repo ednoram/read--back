@@ -7,7 +7,7 @@ import "dotenv/config";
 import schema from "@schema";
 import { auth } from "@middleware";
 import { connectDB } from "@utils";
-import { PORT, IS_PRODUCTION, CLIENT_URL } from "@config";
+import { PORT, IS_PRODUCTION } from "@config";
 
 connectDB();
 
@@ -16,7 +16,7 @@ const app = express();
 app.use(json());
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+app.use(cors({ origin: true, credentials: true }));
 
 app.use(auth);
 
