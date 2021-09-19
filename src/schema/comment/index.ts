@@ -69,11 +69,13 @@ export const postComment = {
       throw new Error("Not authenticated");
     }
 
-    if (text === "") {
+    const processedText = text.trim()[0].toUpperCase() + text.trim().slice(1);
+
+    if (processedText === "") {
       throw new Error("Comment can not be empty");
     }
 
-    if (text.length > 800) {
+    if (processedText.length > 800) {
       throw new Error("Comment is too long");
     }
 
@@ -94,7 +96,7 @@ export const postComment = {
 
     const comment = new Comment({
       articleId,
-      text: text.trim(),
+      text: processedText,
       userEmail: user.email,
     });
 
@@ -129,17 +131,23 @@ export const updateComment = {
       throw new Error("Comment does not belong to user");
     }
 
-    if (text === "") {
+    const processedText = text.trim()[0].toUpperCase() + text.trim().slice(1);
+
+    if (processedText === "") {
       throw new Error("Comment can not be empty");
     }
 
-    if (text.length > 800) {
+    if (processedText.length > 800) {
       throw new Error("Comment is too long");
     }
 
     return await Comment.findOneAndUpdate(
       { _id },
-      { $set: { text: text.trim() } },
+      {
+        $set: {
+          text: processedText,
+        },
+      },
       { returnOriginal: false }
     );
   },
